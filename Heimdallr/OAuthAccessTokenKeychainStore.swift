@@ -3,13 +3,16 @@ import Security
 
 internal struct Keychain {
     internal let service: String
+    internal let accessGroup: String?
 
     fileprivate var defaultClassAndAttributes: [String: AnyObject] {
         return [
             String(kSecClass): String(kSecClassGenericPassword) as AnyObject,
             String(kSecAttrAccessible): String(kSecAttrAccessibleAfterFirstUnlock) as AnyObject,
             String(kSecAttrService): service as AnyObject,
+            String(kSecAttrAccessGroup): accessGroup as AnyObject?,
         ]
+        .compactMapValues { value -> AnyObject? in value }
     }
 
     internal func dataForKey(_ key: String) -> Data? {
@@ -98,8 +101,8 @@ internal struct Keychain {
     ///
     /// - parameter service: The keychain service.
     ///     Default: `de.rheinfabrik.heimdallr.oauth`.
-    public init(service: String = "de.rheinfabrik.heimdallr.oauth") {
-        keychain = Keychain(service: service)
+    public init(service: String = "de.rheinfabrik.heimdallr.oauth", accessGroup: String? = nil) {
+        keychain = Keychain(service: service, accessGroup: accessGroup)
     }
 
     public func storeAccessToken(_ accessToken: OAuthAccessToken?) {
